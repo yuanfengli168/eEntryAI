@@ -1,0 +1,27 @@
+name: eEntryAI
+options:
+  bundleIdPrefix: com.eEntryAI
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+
+targets:
+  eEntryAI:
+    type: application
+    platform: iOS
+    sources:
+      - path: eEntryAI
+      - path: packs
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.eEntryAI.app
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: YES
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1"      # iPhone only
+        CODE_SIGNING_ALLOWED: "NO"       # local prototype: no signing required to build

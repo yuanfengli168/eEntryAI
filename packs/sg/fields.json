@@ -1,0 +1,72 @@
+{
+  "packVersion": 1,
+  "countryCode": "SG",
+  "countryName": "Singapore",
+  "pattern": "AUTOFILL_SUBMIT",
+  "minAppVersion": "0.1.0",
+  "entryUrl": "https://eservices.ica.gov.sg/arrivalcard",
+  "visitorManualPath": "/sgac/fvipa/submit",
+  "estimatedFields": 27,
+  "pages": [
+    {
+      "id": "tab1",
+      "name": "Traveller Details",
+      "fields": [
+        { "key": "arrivalDate", "label": "Date of Arrival", "strategy": "RADIO_DYNAMIC", "valueFrom": "trip.arrivalDate", "required": true, "optionsNote": "3 dates rendered (today+2); match text 'D MONTHNAME YYYY' uppercase" },
+        { "key": "fullNameInPassport", "label": "Full Name (In Passport)", "strategy": "TEXTBOX_BY_LABEL", "valueFrom": "profile.fullNameInPassport", "required": true },
+        { "key": "passportNumber", "label": "Passport Number", "strategy": "TEXTBOX_BY_LABEL", "valueFrom": "profile.passportNumber", "required": true },
+        { "key": "passportExpiry", "label": "Date of Passport Expiry", "strategy": "DATE_DMY_TEXTBOXES", "valueFrom": "profile.passportExpiry", "required": true, "format": "DD/MM/YYYY" },
+        { "key": "sexInPassport", "label": "Sex as indicated in Passport", "strategy": "RADIO_OPTIONS", "options": ["FEMALE", "MALE", "OTHERS"], "valueFrom": "profile.sexInPassport", "required": true },
+        { "key": "dateOfBirth", "label": "Date of Birth", "strategy": "DATE_DMY_TEXTBOXES", "valueFrom": "profile.dateOfBirth", "required": true, "format": "DD/MM/YYYY", "supportsUnknown": ["Day unknown", "Month unknown"] },
+        { "key": "nationality", "label": "Nationality/Citizenship", "strategy": "SEARCH_COMBOBOX", "valueFrom": "profile.nationality", "required": true, "match": "EXACT_OPTION" },
+        { "key": "countryOfBirth", "label": "Country/Place of Birth", "strategy": "SEARCH_COMBOBOX", "valueFrom": "profile.countryOfBirth", "required": true, "match": "EXACT_OPTION" },
+        { "key": "placeOfResidence", "label": "Place of Residence in Home Country", "strategy": "SEARCH_COMBOBOX", "valueFrom": "profile.placeOfResidence", "required": true, "match": "EXACT_OPTION" },
+        { "key": "email", "label": "Email Address", "strategy": "TEXTBOX_BY_LABEL", "valueFrom": "profile.email", "required": true },
+        { "key": "phoneCountryCode", "label": "Country Code", "strategy": "SEARCH_COMBOBOX", "valueFrom": "profile.phoneCountryCode", "required": true, "match": "EXACT_OPTION", "note": "options render spaced digits e.g. '8 5 2'; normalize before compare" },
+        { "key": "mobileNumber", "label": "Mobile Number", "strategy": "TEXTBOX_BY_LABEL", "valueFrom": "profile.mobileNumber", "required": true },
+        { "key": "lastCityOfEmbarkation", "label": "Last City/Port of Embarkation before Singapore", "strategy": "SEARCH_COMBOBOX", "valueFrom": "trip.lastPortBeforeSG", "required": true, "match": "EXACT_OPTION" },
+        { "key": "purposeOfTravel", "label": "Purpose of Travel", "strategy": "SEARCH_COMBOBOX", "valueFrom": "trip.purpose", "required": true, "options": ["BUSINESS/MEETING/CONFERENCE/CONVENTION/EXHIBITION", "EDUCATION/TRAINING", "EMPLOYMENT", "OFFICIAL/GOVERNMENT VISIT", "HOLIDAY/SIGHTSEEING/LEISURE"] },
+        { "key": "departureDate", "label": "Date of Departure from Singapore", "strategy": "DATE_DMY_TEXTBOXES", "valueFrom": "trip.departureDate", "required": true, "format": "DD/MM/YYYY", "validation": "must be after arrivalDate" },
+        { "key": "nextCityOfDisembarkation", "label": "Next City/ Port of Disembarkation after Singapore", "strategy": "SEARCH_COMBOBOX", "valueFrom": "trip.nextPortAfterSG", "required": true, "match": "EXACT_OPTION", "shortcutCheckbox": "Same as Last City" },
+        { "key": "differentNamePassport", "label": "Have you ever used a passport under different name to enter Singapore?", "strategy": "RADIO_OPTIONS", "options": ["YES", "NO"], "valueFrom": "trip.usedDifferentNamePassport", "required": true, "defaultValue": "NO" },
+        { "key": "healthSymptoms", "label": "Do you currently have fever, cough, shortness of breath, headache, vomiting or dizziness?", "strategy": "RADIO_OPTIONS", "options": ["YES", "NO"], "valueFrom": "trip.healthSymptoms", "required": true, "defaultValue": "NO" },
+        { "key": "healthYellowFever", "label": "Have you visited any of the listed countries in Africa or Latin America in the past 6 days prior to your arrival in Singapore?", "strategy": "RADIO_OPTIONS", "options": ["YES", "NO"], "valueFrom": "trip.healthYellowFever", "required": true, "defaultValue": "NO", "labelMatch": "CONTAINS:visited any of the" }
+      ]
+    },
+    {
+      "id": "tab2",
+      "name": "Visit Details",
+      "fields": [
+        { "key": "modeOfTravel", "label": "Mode of Travel", "strategy": "RADIO_OPTIONS", "options": ["AIR", "LAND", "SEA"], "valueFrom": "trip.modeOfTravel", "required": true },
+        { "key": "modeOfTransport", "label": "Mode of Transport", "strategy": "RADIO_OPTIONS", "options": ["COMMERCIAL FLIGHT", "PRIVATE/CARGO AIRLINE/OTHERS"], "valueFrom": "trip.modeOfTransport", "required": true, "visibleWhen": { "field": "modeOfTravel", "equals": "AIR" } },
+        { "key": "flightCode", "label": "Flight Code", "strategy": "SEARCH_COMBOBOX", "valueFrom": "trip.airlineName", "required": true, "visibleWhen": { "field": "modeOfTravel", "equals": "AIR" }, "match": "EXACT_OPTION" },
+        { "key": "flightNumber", "label": "Flight Number", "strategy": "TEXTBOX_BY_LABEL", "valueFrom": "trip.flightNumber", "required": true, "visibleWhen": { "field": "modeOfTravel", "equals": "AIR" }, "note": "digits only; code auto-prefixed by portal" },
+        { "key": "accommodationType", "label": "Type of Accommodation in Singapore", "strategy": "RADIO_OPTIONS", "options": ["HOTEL", "RESIDENTIAL", "TRANSIT", "DAY TRIP"], "valueFrom": "trip.accommodationType", "required": true },
+        { "key": "hotelName", "label": "Name of Hotel", "strategy": "SEARCH_COMBOBOX", "valueFrom": "trip.hotelName", "required": true, "visibleWhen": { "field": "accommodationType", "equals": "HOTEL" }, "match": "EXACT_OPTION" }
+      ]
+    },
+    {
+      "id": "tab3",
+      "name": "Review",
+      "fields": [],
+      "reviewDetection": { "textContains": "Please review your details carefully" },
+      "preSubmit": [
+        { "strategy": "CHECKBOX_BY_LABEL", "label": "I have read and agreed to the declaration." }
+      ],
+      "submit": { "strategy": "BUTTON", "text": "Submit", "requiresUserTap": true }
+    }
+  ],
+  "navigation": {
+    "entryAction": { "path": "visitor", "button": "Fill in Manually" },
+    "nextButton": "Next",
+    "previousButton": "Previous"
+  },
+  "knownQuirks": [
+    "Email input uppercases value — compare case-insensitively on review verification",
+    "Departure date must be after arrival date; arrival limited to 3-day window",
+    "Country-code options render with spaced digits ('8 5 2')",
+    "Angular Material inputs need input+change event dispatch, not just value set",
+    "Conditional fields appear only after parent radio selected — re-extract DOM after each choice",
+    "Group submission via 'Add Traveller' — v0 supports single traveler only"
+  ]
+}

@@ -72,6 +72,10 @@ final class AppModel: ObservableObject {
         try? profileStore?.save(p)
     }
 
+    func saveTrip(_ t: Trip) {
+        trip = t
+    }
+
     func recordSubmission(country: String, status: SubmissionStatus) {
         let record = Submission(
             country: country,
@@ -89,6 +93,7 @@ struct HomeView: View {
     @StateObject private var model = AppModel()
     @State private var showWebView = false
     @State private var showHistory = false
+    @State private var preflight: PreflightTask?
 
     var body: some View {
         NavigationStack {
@@ -103,7 +108,7 @@ struct HomeView: View {
 
                 Section {
                     ForEach(SupportedCountry.allCases) { country in
-                        Button(country.displayName) { showWebView = true }
+                        Button(country.displayName) { startPreflight(country) }
                             .foregroundStyle(.primary)
                     }
                 } header: { Text("2. Pick destination & fill arrival card") }
@@ -113,6 +118,11 @@ struct HomeView: View {
                 } header: { Text("3. Past submissions") }
             }
             .navigationTitle("eEntryAI")
+            .sheet(item: $preflight) { task in
+                PreFlightCheckView(model: model, pack: task.pack) {
+                    showWebView = true
+                }
+            }
             .sheet(isPresented: $showWebView) {
                 SGWebViewScreen(model: model)
             }
@@ -120,11 +130,29 @@ struct HomeView: View {
                 HistoryView(history: model.history)
             }
             .onAppear {
-                // Test-only: auto-open the SG WebView flow for automated feasibility runs.
-                if ProcessInfo.processInfo.arguments.contains("-uitest-autoopen") {
-                    showWebView = true
+                // Test-only: automated checks.
+                if ProcessInfo.processInfo.arguments.contains("-uitest-preflight") {
+                    startPreflight(.sg)   // render pre-flight sheet for visual check
+                } else if ProcessInfo.processInfo.arguments.contains("-uitest-autoopen") {
+                    startPreflight(.sg)   // seeded run: startPreflight itself skips the sheet
                 }
             }
+        }
+    }
+
+    /// P0 gate: diff pack requirements vs saved data BEFORE opening the portal.
+    private func startPreflight(_ country: SupportedCountry) {
+        do {
+            let pack = try SGCountryAdapter().loadPack()
+            // Test-only: seeded fixture data is complete — skip straight to the flow.
+            if ProcessInfo.processInfo.arguments.contains("-uitest-autoopen") {
+                showWebView = true
+                return
+            }
+            preflight = PreflightTask(pack: pack)
+        } catch {
+            // Pack unavailable — still allow the raw flow rather than blocking.
+            showWebView = true
         }
     }
 }

@@ -14,10 +14,12 @@
 		A41CD551D832F99AD4F96E43 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E07470109A1E400AC7A84E /* Storage.swift */; };
 		AAE8115EB246889DC77124D8 /* AdapterPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D0FF8B530734726CAE1288 /* AdapterPack.swift */; };
 		D40C7EE8DF0FF4AE724E84F4 /* packs in Resources */ = {isa = PBXBuildFile; fileRef = 3B6982BC7F75053DB660DE4F /* packs */; };
+		E30DD5A997B7B1D16990753C /* PreFlightCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A2BF1539E1FD9A00B8152A /* PreFlightCheckView.swift */; };
 		E53F42E15FBBEF9882528872 /* eEntryAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4657387FC4440F390D8184CE /* eEntryAIApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		23A2BF1539E1FD9A00B8152A /* PreFlightCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreFlightCheckView.swift; sourceTree = "<group>"; };
 		2D2EFE4B09F088A373B81E03 /* SGWebViewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGWebViewScreen.swift; sourceTree = "<group>"; };
 		3B6982BC7F75053DB660DE4F /* packs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = packs; sourceTree = SOURCE_ROOT; };
 		4657387FC4440F390D8184CE /* eEntryAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = eEntryAIApp.swift; sourceTree = "<group>"; };
@@ -34,6 +36,7 @@
 			isa = PBXGroup;
 			children = (
 				B50EB6A9FDFB064390792135 /* HomeView.swift */,
+				23A2BF1539E1FD9A00B8152A /* PreFlightCheckView.swift */,
 				2D2EFE4B09F088A373B81E03 /* SGWebViewScreen.swift */,
 			);
 			path = UI;
@@ -164,6 +167,7 @@
 				1A5A562B9DD66C0F0358E44B /* AutomationEngine.swift in Sources */,
 				1C7B7BC15DB11B9248D54E2A /* HomeView.swift in Sources */,
 				04C702641559AF65FA94E136 /* Models.swift in Sources */,
+				E30DD5A997B7B1D16990753C /* PreFlightCheckView.swift in Sources */,
 				4793103C71EFB4ABF336CFC4 /* SGWebViewScreen.swift in Sources */,
 				A41CD551D832F99AD4F96E43 /* Storage.swift in Sources */,
 				E53F42E15FBBEF9882528872 /* eEntryAIApp.swift in Sources */,

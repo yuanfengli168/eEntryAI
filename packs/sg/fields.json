@@ -39,8 +39,8 @@
       "fields": [
         { "key": "modeOfTravel", "label": "Mode of Travel", "strategy": "RADIO_OPTIONS", "options": ["AIR", "LAND", "SEA"], "valueFrom": "trip.modeOfTravel", "required": true },
         { "key": "modeOfTransport", "label": "Mode of Transport", "strategy": "RADIO_OPTIONS", "options": ["COMMERCIAL FLIGHT", "PRIVATE/CARGO AIRLINE/OTHERS"], "valueFrom": "trip.modeOfTransport", "required": true, "visibleWhen": { "field": "modeOfTravel", "equals": "AIR" } },
-        { "key": "flightCode", "label": "Flight Code", "strategy": "SEARCH_COMBOBOX", "valueFrom": "trip.airlineName", "required": true, "visibleWhen": { "field": "modeOfTravel", "equals": "AIR" }, "match": "EXACT_OPTION" },
-        { "key": "flightNumber", "label": "Flight Number", "strategy": "TEXTBOX_BY_LABEL", "valueFrom": "trip.flightNumber", "required": true, "visibleWhen": { "field": "modeOfTravel", "equals": "AIR" }, "note": "digits only; code auto-prefixed by portal" },
+        { "key": "flightCode", "label": "Flight Code", "strategy": "SEARCH_COMBOBOX", "valueFrom": "trip.airlineName", "required": true, "visibleWhen": { "field": "modeOfTransport", "equals": "COMMERCIAL FLIGHT" }, "match": "EXACT_OPTION" },
+        { "key": "flightNumber", "label": "Flight Number", "strategy": "TEXTBOX_BY_LABEL", "valueFrom": "trip.flightNumber", "required": true, "visibleWhen": { "field": "modeOfTransport", "equals": "COMMERCIAL FLIGHT" }, "note": "digits only; code auto-prefixed by portal" },
         { "key": "accommodationType", "label": "Type of Accommodation in Singapore", "strategy": "RADIO_OPTIONS", "options": ["HOTEL", "RESIDENTIAL", "TRANSIT", "DAY TRIP"], "valueFrom": "trip.accommodationType", "required": true },
         { "key": "hotelName", "label": "Name of Hotel", "strategy": "SEARCH_COMBOBOX", "valueFrom": "trip.hotelName", "required": true, "visibleWhen": { "field": "accommodationType", "equals": "HOTEL" }, "match": "EXACT_OPTION" }
       ]

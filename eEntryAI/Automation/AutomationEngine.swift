@@ -353,9 +353,11 @@ final class AutofillOrchestrator {
             }
             let result = await fill(field: field, resolver: resolver, webView: webView)
             results.append(result)
-            // conditional fields appear after parent selection — small settle delay.
-            if field.strategy == FieldStrategy.radioOptions.rawValue && field.visibleWhen == nil {
-                try? await Task.sleep(nanoseconds: 300_000_000)
+            // Any radio selection can reveal conditional sections (flight fields after
+            // Mode of Transport, hotel after Accommodation) — settle before the next
+            // field's visibility gate runs.
+            if field.strategy == FieldStrategy.radioOptions.rawValue {
+                try? await Task.sleep(nanoseconds: 400_000_000)
             }
         }
         lastResults = results
@@ -371,7 +373,16 @@ final class AutofillOrchestrator {
           var group = window.__eEntryAI.findRadiogroup(\(AutomationJS.js(parent.label)));
           if (!group) return false;
           var checked = group.querySelector('input[type="radio"]:checked');
-          return !!checked && (window.__eEntryAI.norm(checked.value) === \(AutomationJS.js(rule.equals)) || window.__eEntryAI.norm(checked.closest('mat-radio-button, label, div').textContent).indexOf(\(AutomationJS.js(rule.equals))) !== -1);
+          if (!checked) return false;
+          // Internal input.value is a short code (F/M/O, Y/N) — the reliable signal is
+          // the VISIBLE option text on the mat-radio-button. Walk to it explicitly:
+          // nearest div/label ancestors hold empty text, so match mat-radio-button first.
+          var btn = checked.closest('mat-radio-button') || checked.closest('label');
+          var visibleText = window.__eEntryAI.norm(btn ? btn.textContent : '');
+          var wanted = window.__eEntryAI.norm(\(AutomationJS.js(rule.equals)));
+          return visibleText === wanted
+            || visibleText.indexOf(wanted) !== -1
+            || window.__eEntryAI.norm(checked.value) === wanted;
         })()
         """
         return (try? await AutomationJS.run(script, in: webView) as? Bool) ?? false
@@ -471,6 +482,8 @@ final class AutofillOrchestrator {
 
     func isReviewPage(pack: AdapterPack, webView: WKWebView) async -> Bool {
         guard let page = pack.pages.last, let marker = page.reviewDetection?.textContains else { return false }
-        return (try? await AutomationJS.run("detectText(\(AutomationJS.js(marker)))", in: webView) as? Bool) ?? false
+        return (try? await AutomationJS.run(
+            "window.__eEntryAI.detectText(\(AutomationJS.js(marker)))", in: webView
+        ) as? Bool) ?? false
     }
 }

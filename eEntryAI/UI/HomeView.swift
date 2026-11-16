@@ -49,6 +49,12 @@ final class AppModel: ObservableObject {
             fixture.email = "schema.test@example.com"
             fixture.phoneCountryCode = "852"
             fixture.mobileNumber = "91234567"
+
+            // Test-only: force a required-field failure to verify the needs-you
+            // handoff + resume path. "ATLANTIS" matches no portal option.
+            if ProcessInfo.processInfo.arguments.contains("-uitest-failfield") {
+                fixture.nationality = "ATLANTIS"
+            }
             profile = fixture
 
             trip.arrivalDate = portalToday()

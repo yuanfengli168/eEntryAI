@@ -98,10 +98,26 @@ enum AutomationJS {
             }
         },
         byAria: function(label, kinds) {
-            var candidates = [];
-            kinds.forEach(function(k) { candidates.push(k + label); });
-            for (var i = 0; i < candidates.length; i++) {
-              try { var el = document.querySelector(candidates[i]); if (el) return el; } catch (e) {}
+            // Exact match first, then prefix match: Angular re-renders failed fields
+            // with mutated aria-labels ("X. Please fill in the field above").
+            var exact = [], prefixes = [];
+            kinds.forEach(function(k) {
+              exact.push(k + label + '"]');
+              prefixes.push(k + label + '"]');
+            });
+            for (var i = 0; i < exact.length; i++) {
+              try { var el = document.querySelector(exact[i]); if (el) return el; } catch (e) {}
+            }
+            // Prefix scan over all candidates' tag+attr.
+            for (var i = 0; i < kinds.length; i++) {
+              var attr = kinds[i].split('=')[0];          // e.g. input[aria-label
+              var tag = attr.split('[')[0];                // e.g. input
+              var attrName = attr.split('[')[1];           // e.g. aria-label
+              var els = document.querySelectorAll(tag + '[' + attrName + ']');
+              for (var j = 0; j < els.length; j++) {
+                var v = window.__eEntryAI.norm(els[j].getAttribute(attrName));
+                if (v.indexOf(window.__eEntryAI.norm(label)) === 0) return els[j];
+              }
             }
             return null;
         },

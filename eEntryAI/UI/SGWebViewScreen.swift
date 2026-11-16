@@ -12,17 +12,26 @@ struct SGWebViewScreen: View {
     @State private var log: [String] = []
     @State private var pageIdx = 0
     @State private var showLog = false
+    @State private var resumeRequested = false
 
     enum Phase: Equatable {
         case loading, entry, filling, reviewWaiting, done
+        case needsYou([FailedField])
         case failed(String)
+    }
+
+    /// P1: one failed required field, shown in the needs-you list.
+    struct FailedField: Identifiable, Equatable {
+        let id = UUID()
+        let label: String
+        let reason: String
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 statusBar
-                WebViewContainer(model: model, phase: $phase, pageIdx: $pageIdx, log: appendLog)
+                WebViewContainer(model: model, phase: $phase, pageIdx: $pageIdx, resumeRequested: $resumeRequested, log: appendLog)
             }
             .navigationTitle("SG Arrival Card")
             .navigationBarTitleDisplayMode(.inline)
@@ -32,21 +41,41 @@ struct SGWebViewScreen: View {
                 }
             }
         }
+        .onChange(of: resumeRequested) { _ in }   // binding triggers updateUIView above
     }
 
     private var statusBar: some View {
-        HStack {
-            switch phase {
-            case .loading: ProgressView(); Text("Loading portal…")
-            case .entry: Text("Portal ready").foregroundStyle(.green)
-            case .filling: ProgressView(); Text("Filling page \(pageIdx + 1)…")
-            case .reviewWaiting: Text("Please review & submit yourself").foregroundStyle(.orange)
-            case .done: Text("Submitted ✓").foregroundStyle(.green)
-            case .failed(let msg): Text("Failed: \(msg)").foregroundStyle(.red)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                switch phase {
+                case .loading: ProgressView(); Text("Loading portal…")
+                case .entry: Text("Portal ready").foregroundStyle(.green)
+                case .filling: ProgressView(); Text("Filling page \(pageIdx + 1)…")
+                case .reviewWaiting: Text("Please review & submit yourself").foregroundStyle(.orange)
+                case .done: Text("Submitted ✓").foregroundStyle(.green)
+                case .needsYou(let failures):
+                    Text("Needs you — \(failures.count) field\(failures.count == 1 ? "" : "s")")
+                        .foregroundStyle(.orange).bold()
+                    Spacer()
+                    Button("Resume") { resumeRequested = true }
+                        .buttonStyle(.borderedProminent).controlSize(.small)
+                case .failed(let msg): Text("Failed: \(msg)").foregroundStyle(.red)
+                }
+                if case .reviewWaiting = phase { Spacer() }
+                if !log.isEmpty && !phase.isNeedsYou {
+                    Button("Log (\(log.count))") { showLog = true }
+                }
             }
-            Spacer()
-            if !log.isEmpty {
-                Button("Log (\(log.count))") { showLog = true }
+            if case .needsYou(let failures) = phase {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Fix these on the portal page, tap the portal's Next, then tap Resume:")
+                        .font(.caption).foregroundStyle(.secondary)
+                    ForEach(failures) { f in
+                        Text("• \(f.label) — \(f.reason)")
+                            .font(.caption.monospaced())
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
             }
         }
         .font(.footnote)
@@ -80,10 +109,18 @@ struct SGWebViewScreen: View {
     }
 }
 
+extension SGWebViewScreen.Phase {
+    var isNeedsYou: Bool {
+        if case .needsYou = self { return true }
+        return false
+    }
+}
+
 struct WebViewContainer: UIViewRepresentable {
     @ObservedObject var model: AppModel
     @Binding var phase: SGWebViewScreen.Phase
     @Binding var pageIdx: Int
+    @Binding var resumeRequested: Bool
     var log: (String) -> Void
 
     func makeUIView(context: Context) -> WKWebView {
@@ -102,7 +139,15 @@ struct WebViewContainer: UIViewRepresentable {
         return web
     }
 
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        // P2: Resume button → continue filling from the next page.
+        if resumeRequested {
+            resumeRequested = false
+            Task { @MainActor in
+                await context.coordinator.resumeFlow(webView: uiView)
+            }
+        }
+    }
 
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
 
@@ -112,6 +157,8 @@ struct WebViewContainer: UIViewRepresentable {
         private var pack: AdapterPack?
         private weak var webView: WKWebView?
         private var started = false
+        /// P2: index of the last page we filled (or attempted) — resume continues after it.
+        private var lastCompletedPage = -1
 
         init(parent: WebViewContainer) { self.parent = parent }
 
@@ -127,7 +174,6 @@ struct WebViewContainer: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             guard !started else { return }
-            started = true
             started = true
             Task { @MainActor in
                 parent.phase = .entry
@@ -188,8 +234,21 @@ struct WebViewContainer: UIViewRepresentable {
                 trip: parent.model.trip
             )
 
-            // Step 2: fill pages 1..2 (page 3 = review)
-            for (idx, page) in pack.pages.enumerated() {
+            // Step 2: fill pages, gated — stop (don't click Next) when a required
+            // field failed. Resume continues from the next page index.
+            await fillFrom(pageIndex: 0, pack: pack, resolver: resolver, webView: webView)
+        }
+
+        /// P1/P2: fills pages starting at `pageIndex` until a required field fails
+        /// (→ needsYou) or the review page is reached (→ reviewWaiting).
+        @MainActor
+        private func fillFrom(
+            pageIndex: Int, pack: AdapterPack,
+            resolver: FieldValueResolver, webView: WKWebView
+        ) async {
+            lastCompletedPage = pageIndex - 1
+
+            for (idx, page) in pack.pages.enumerated() where idx >= pageIndex {
                 guard !page.fields.isEmpty else { continue }   // review page: skip
                 parent.pageIdx = idx
                 parent.phase = .filling
@@ -206,8 +265,9 @@ struct WebViewContainer: UIViewRepresentable {
                     }
                     parent.log("Page \(idx + 1) ready: \(pageReady)")
                 }
+                var results: [AutofillOrchestrator.FieldResult] = []
                 do {
-                    let results = try await orchestrator.runPage(
+                    results = try await orchestrator.runPage(
                         pack: pack, page: page, resolver: resolver, webView: webView
                     )
                     for r in results {
@@ -220,11 +280,37 @@ struct WebViewContainer: UIViewRepresentable {
                 } catch {
                     parent.log("page \(idx) error: \(error)")
                 }
+
+                // P1 gate: a failed required field means the portal will refuse Next —
+                // hand off instead of fighting the validator.
+                let fieldByKey = Dictionary(page.fields.map { ($0.key, $0) }, uniquingKeysWith: { a, _ in a })
+                let failures = results
+                    .filter { !$0.ok && $0.error != "hidden (condition)" }
+                    .compactMap { r -> SGWebViewScreen.FailedField? in
+                        guard let field = fieldByKey[r.key], field.required ?? true else { return nil }
+                        return SGWebViewScreen.FailedField(label: field.label, reason: r.error ?? "unknown")
+                    }
+                if !failures.isEmpty {
+                    lastCompletedPage = idx
+                    parent.phase = .needsYou(failures)
+                    parent.log("NEEDS-YOU (\(failures.count)): " + failures.map { $0.label }.joined(separator: ", "))
+
+                    // Test-only: simulate the user's manual fix + portal Next tap so
+                    // the resume path can be verified end-to-end on the simulator.
+                    if ProcessInfo.processInfo.arguments.contains("-uitest-simulate-fix") {
+                        try? await Task.sleep(nanoseconds: 3_000_000_000)
+                        _ = await callUserFix(pack: pack, webView: webView)
+                        await resumeFlow(webView: webView)
+                    }
+                    return   // user fixes on the portal; Resume continues from idx+1
+                }
+
                 if idx < pack.pages.count - 1 {
                     await orchestrator.clickNext(pack: pack, webView: webView)
                     parent.log("→ next page")
                     try? await Task.sleep(nanoseconds: 1_500_000_000)
                 }
+                lastCompletedPage = idx
             }
 
             // Step 3: review reached — verify it rendered, then hand control to user.
@@ -235,6 +321,54 @@ struct WebViewContainer: UIViewRepresentable {
                 parent.phase = .failed("review page not detected")
                 parent.log("✗ review page NOT detected")
             }
+        }
+
+        /// P2: user fixed the fields on the portal and advanced — continue from
+        /// the page after the one where we stopped.
+        @MainActor
+        func resumeFlow(webView: WKWebView) async {
+            guard let pack else { return }
+            guard case .needsYou = parent.phase else { return }
+            let nextPage = lastCompletedPage + 1
+            parent.log("Resume: continuing from page \(nextPage + 1)")
+            let resolver = FieldValueResolver(
+                profile: parent.model.profile ?? Profile(),
+                trip: parent.model.trip
+            )
+            await fillFrom(pageIndex: nextPage, pack: pack, resolver: resolver, webView: webView)
+        }
+
+        /// Test-only: plays the user's part — picks the right nationality through
+        /// the real portal widgets, then taps the portal's own Next button.
+        @MainActor
+        private func callUserFix(pack: AdapterPack, webView: WKWebView) async {
+            _ = try? await webView.evaluateJavaScript("""
+            window.__eEntryAI.startComboboxSelect('Nationality/Citizenship', 'CHINESE');
+            """)
+            try? await Task.sleep(nanoseconds: 2_500_000_000)   // combobox sequence completes
+            // Diagnostics: input value after the fix + which tab is active.
+            let check = (try? await AutomationJS.run("""
+            (function() {
+              var inp = window.__eEntryAI.byAria('Nationality/Citizenship', ['input[aria-label="']);
+              var cb = window.__cbResult;
+              return JSON.stringify({ inputNow: inp ? inp.value : 'no-input', cbResult: cb });
+            })()
+            """, in: webView) as? String) ?? "?"
+            parent.log("FIX-CHECK: \(check)")
+            let nextScript = """
+            (function() {
+              var btns = document.querySelectorAll('button');
+              var hit = null;
+              for (var i = 0; i < btns.length; i++) {
+                if (window.__eEntryAI.norm(btns[i].textContent).indexOf('NEXT') !== -1) hit = btns[i];
+              }
+              if (hit) { hit.click(); return 'user-clicked-next'; }
+              return 'next-not-found';
+            })()
+            """
+            let r = (try? await AutomationJS.run(nextScript, in: webView) as? String) ?? "?"
+            parent.log("SIMULATED USER: \(r)")
+            try? await Task.sleep(nanoseconds: 2_000_000_000)   // Angular advances
         }
     }
 }

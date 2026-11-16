@@ -31,6 +31,8 @@ struct AddDocumentSheet: View {
     @State private var warnings: [String] = []
     @State private var parseFailed = false
     @State private var showManualFields = false
+    /// Test/diagnostic: raw OCR text (field values only, never the image).
+    @State private var ocrDebugText: String = ""
 
     var body: some View {
         NavigationStack {
@@ -85,14 +87,17 @@ struct AddDocumentSheet: View {
                             extracted = fields
                             warnings = warns
                             parseFailed = false
-                        case .noMRZ:
+                            ocrDebugText = ""
+                        case .noMRZ(let text):
                             extracted = []
                             warnings = []
                             parseFailed = true
+                            ocrDebugText = text
                         case .ocrFailed:
                             extracted = []
                             warnings = ["OCR failed — try again or type manually"]
                             parseFailed = true
+                            ocrDebugText = ""
                         }
                     }
                 }
@@ -129,11 +134,18 @@ struct AddDocumentSheet: View {
             }
         } else if parseFailed {
             Section {
-                Label("Couldn't read the MRZ. Try a clearer photo or type it in.",
+                Label("Couldn't read the MRZ. Try a closer, straight-on crop of the two MRZ lines at the bottom of the photo page, or type it in.",
                       systemImage: "xmark.octagon")
                     .foregroundStyle(.orange)
                 Button("Type manually instead") {
                     showManualFields = true
+                }
+            }
+            if !ocrDebugText.isEmpty {
+                Section("OCR debug (what Vision read)") {
+                    Text(ocrDebugText)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
                 }
             }
             if showManualFields { manualSection }

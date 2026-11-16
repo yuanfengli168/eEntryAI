@@ -119,3 +119,13 @@ Settings live in a Vault section of the app (not iOS Settings — keep it in-con
 
 Estimate: ~2 days. V-2 is the riskiest (OCR behavior on real passport photos) — build it
 second so V-1's security core is solid before UI exists.
+
+## 9. Deployment & signing decisions (2026-11-16)
+
+| Environment | Signing | Biometry |
+|---|---|---|
+| Simulator (prototype) | **Ad-hoc** (`CODE_SIGN_IDENTITY=-`, no Apple account) + `keychain-access-groups` entitlements file. Required: unsigned builds fail Keychain with -34018 (errSecMissingEntitlement). | Simulated Face ID: enroll via Simulator menu Features ▸ Face ID. Errors surface on the lock screen. |
+| Real device (next phase) | **Temporary/proper signing identity** — free Apple ID works for personal-device installs; no code changes, only signing config. | Real Face ID via LAContext (same code path); passcode fallback automatic. |
+| App Store (future) | Distribution certificate + full entitlements review. | Same. |
+
+Keychain items are `ThisDeviceOnly` by design: no backup migration, no cross-device key sync.

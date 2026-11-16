@@ -13,34 +13,42 @@ enum OCRPipeline {
         case ocrFailed
     }
 
-    /// Recognizes text in the image and attempts MRZ parse. On the simulator
-    /// this uses CPU; on device it runs on the Neural Engine. Either way:
-    /// same process, zero network.
+    /// Recognizes text in the image and attempts MRZ parse. Two recognition
+    /// passes: .accurate first, then .fast (different line segmentation often
+    /// rescues angled/laminated MRZs). Still fully on-device.
     static func process(image: UIImage) async -> OCRResult {
         guard let cgImage = image.cgImage else { return .ocrFailed }
 
+        for level in [VNRequestTextRecognitionLevel.accurate, .fast] {
+            let rawText = recognize(cgImage: cgImage, level: level)
+            if case .success(let fields, let warnings) = MRZParser.parse(rawText: rawText) {
+                return .mrzFound(fields: fields, warnings: warnings)
+            }
+            if level == .fast, !rawText.isEmpty {
+                // Both passes done; report the more complete text for diagnostics.
+                return .noMRZ(text: rawText)
+            }
+        }
+        // accurate produced text but parse failed and fast produced nothing useful:
+        let text = recognize(cgImage: cgImage, level: .accurate)
+        return text.isEmpty ? .ocrFailed : .noMRZ(text: text)
+    }
+
+    private static func recognize(cgImage: CGImage, level: VNRequestTextRecognitionLevel) -> String {
         let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
-        request.usesLanguageCorrection = false          // MRZ is charset-fixed; correction hurts
+        request.recognitionLevel = level
+        request.usesLanguageCorrection = false          // MRZ charset is fixed
+        request.recognitionLanguages = ["en-US"]
 
         let handler = VNImageRequestHandler(cgImage: cgImage, orientation: .up)
         do {
             try handler.perform([request])
         } catch {
-            return .ocrFailed
+            return ""
         }
-
-        let lines = (request.results ?? []).compactMap { observation -> String? in
-            observation.topCandidates(1).first?.string
-        }
-        let rawText = lines.joined(separator: "\n")
-
-        switch MRZParser.parse(rawText: rawText) {
-        case .success(let fields, let warnings):
-            return .mrzFound(fields: fields, warnings: warnings)
-        case .failure:
-            return .noMRZ(text: rawText)
-        }
+        return (request.results ?? []).compactMap { obs in
+            obs.topCandidates(1).first?.string
+        }.joined(separator: "\n")
     }
 
     // MARK: Synthetic MRZ image (test-only + verification)

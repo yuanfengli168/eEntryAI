@@ -12,10 +12,12 @@
 		1A5A562B9DD66C0F0358E44B /* AutomationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07266B0B731FF798C5CE945 /* AutomationEngine.swift */; };
 		1C7B7BC15DB11B9248D54E2A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50EB6A9FDFB064390792135 /* HomeView.swift */; };
 		4793103C71EFB4ABF336CFC4 /* SGWebViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2EFE4B09F088A373B81E03 /* SGWebViewScreen.swift */; };
+		5C21FABA035EAF545DB0CC70 /* VisualZoneParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D5F8D9DE8F21EF074BA7B2 /* VisualZoneParser.swift */; };
 		74933F3D555A91AB05724820 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B274F58A64F9F3BA1325E551 /* VaultView.swift */; };
 		7A5E4A0C7C417B8F8D743875 /* VaultModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64598715E783FE3ADF825379 /* VaultModels.swift */; };
 		7DBC027518A186F7962E5F12 /* OCRPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04AFE0655EFAEF3ED734E40 /* OCRPipelineTests.swift */; };
 		7F1BE71E859E0E823637DCD6 /* DocumentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3D5D5105CFEC48EB7991C6B /* DocumentCard.swift */; };
+		8702059FC2F55ED907CE486A /* VisualZoneParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14956FB71BE1F5F028F72BB /* VisualZoneParserTests.swift */; };
 		8956E5D3365BA1573304C8EF /* MRZParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB693E19E57B6DB1BE11C59 /* MRZParserTests.swift */; };
 		8F282EC36DE22144FC6CE1EB /* MRZParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366A9B80725E9BD8A626663F /* MRZParser.swift */; };
 		A41CD551D832F99AD4F96E43 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E07470109A1E400AC7A84E /* Storage.swift */; };
@@ -56,9 +58,11 @@
 		B274F58A64F9F3BA1325E551 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		B50EB6A9FDFB064390792135 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		CC7F3D80CA44BAED6C31811F /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		E0D5F8D9DE8F21EF074BA7B2 /* VisualZoneParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualZoneParser.swift; sourceTree = "<group>"; };
 		E3D5D5105CFEC48EB7991C6B /* DocumentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCard.swift; sourceTree = "<group>"; };
 		EAB693E19E57B6DB1BE11C59 /* MRZParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MRZParserTests.swift; sourceTree = "<group>"; };
 		F07266B0B731FF798C5CE945 /* AutomationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomationEngine.swift; sourceTree = "<group>"; };
+		F14956FB71BE1F5F028F72BB /* VisualZoneParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualZoneParserTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -84,6 +88,7 @@
 				73E07470109A1E400AC7A84E /* Storage.swift */,
 				64598715E783FE3ADF825379 /* VaultModels.swift */,
 				33607B75C65425241604722E /* VaultStore.swift */,
+				E0D5F8D9DE8F21EF074BA7B2 /* VisualZoneParser.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -141,6 +146,7 @@
 			children = (
 				EAB693E19E57B6DB1BE11C59 /* MRZParserTests.swift */,
 				A04AFE0655EFAEF3ED734E40 /* OCRPipelineTests.swift */,
+				F14956FB71BE1F5F028F72BB /* VisualZoneParserTests.swift */,
 			);
 			path = eEntryAITests;
 			sourceTree = "<group>";
@@ -245,6 +251,7 @@
 				7A5E4A0C7C417B8F8D743875 /* VaultModels.swift in Sources */,
 				0620A984988B417C2623E218 /* VaultStore.swift in Sources */,
 				74933F3D555A91AB05724820 /* VaultView.swift in Sources */,
+				5C21FABA035EAF545DB0CC70 /* VisualZoneParser.swift in Sources */,
 				E53F42E15FBBEF9882528872 /* eEntryAIApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -255,6 +262,7 @@
 			files = (
 				8956E5D3365BA1573304C8EF /* MRZParserTests.swift in Sources */,
 				7DBC027518A186F7962E5F12 /* OCRPipelineTests.swift in Sources */,
+				8702059FC2F55ED907CE486A /* VisualZoneParserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

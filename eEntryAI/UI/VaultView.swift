@@ -17,7 +17,9 @@ struct VaultView: View {
                 vaultContent
             }
         }
-        .onAppear { Task { try? await vault.unlock() } }      // biometry prompt on open
+        .onAppear {
+            Task { try? await vault.unlock() }      // biometry prompt on open
+        }
         .onChange(of: scenePhase) { phase in
             if phase == .active { vault.touchActivity() }
         }
@@ -35,8 +37,23 @@ struct VaultView: View {
             Text("Your documents are encrypted at rest")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-            Button("Unlock with Face ID") { Task { try? await vault.unlock() } }
-                .buttonStyle(.borderedProminent)
+            if let err = vault.lastUnlockError {
+                Text(err)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+            Button("Unlock with Face ID") {
+                Task {
+                    do { try await vault.unlock() }
+                    catch {
+                        // lastUnlockError is already set by the store; this keeps
+                        // the button visibly responsive even on failure.
+                    }
+                }
+            }
+            .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemGroupedBackground))

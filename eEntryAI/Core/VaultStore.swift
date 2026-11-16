@@ -50,6 +50,15 @@ final class VaultStore: ObservableObject {
 
     @Published private(set) var lockState: LockState = .locked
     @Published private(set) var index = VaultIndex()
+    /// Last unlock failure in plain language — shown on the lock screen.
+    @Published private(set) var lastUnlockError: String?
+
+    #if targetEnvironment(simulator)
+    /// Simulator-only hint: biometrics need manual enrollment in the Simulator app.
+    static let simulatorHint = "Simulator: enroll Face ID via the Simulator menu Features ▸ Face ID ▸ Enroll, then tap Unlock again."
+    #else
+    static let simulatorHint: String? = nil
+    #endif
 
     // MARK: In-memory unlocked material (dropped on lock)
 
@@ -121,26 +130,64 @@ final class VaultStore: ObservableObject {
     /// Face ID (or device passcode) → read the biometry-gated vault key from the
     /// Keychain → decrypt the index into memory.
     func unlock() async throws {
+        lastUnlockError = nil
         if !hasStoredKey {
-            try createVault()
+            do {
+                try createVault()
+            } catch {
+                lastUnlockError = Self.unlockMessage(for: error)
+                throw error
+            }
             return
         }
 
         let context = LAContext()
         context.localizedFallbackTitle = "Use device passcode"
         guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) else {
+            let msg = Self.biometryUnavailableMessage
+            lastUnlockError = msg
             throw VaultError.biometryUnavailable
         }
         // Keychain read with this context triggers the Face ID prompt
         // (access control on the item, evaluated by the Secure Enclave).
         guard let keyData = Self.readVaultKey(context: context) else {
+            let msg = VaultError.vaultKeyUnavailable.localizedDescription
+            lastUnlockError = msg
             throw VaultError.vaultKeyUnavailable
         }
 
-        vaultKey = SymmetricKey(data: keyData)
-        try decryptIndexIntoMemory()
+        do {
+            vaultKey = SymmetricKey(data: keyData)
+            try decryptIndexIntoMemory()
+        } catch {
+            lastUnlockError = Self.unlockMessage(for: error)
+            vaultKey = nil
+            throw error
+        }
         lockState = .unlocked
         startIdleTimer()
+    }
+
+    /// Plain-language failure text for the lock screen (incl. simulator guidance).
+    static func unlockMessage(for error: Error) -> String {
+        if case VaultError.cancelledByUser = error {
+            return "Cancelled — try again"
+        }
+        if case VaultError.biometryUnavailable = error {
+            return biometryUnavailableMessage
+        }
+        if let vault = error as? VaultError {
+            return vault.localizedDescription
+        }
+        return "Unlock failed: \(error.localizedDescription)"
+    }
+
+    private static var biometryUnavailableMessage: String {
+        #if targetEnvironment(simulator)
+        return "Face ID isn't set up on this simulator. Enroll via the Simulator menu: Features ▸ Face ID ▸ Enroll, then try again."
+        #else
+        return "Face ID / passcode unavailable on this device."
+        #endif
     }
 
     /// Drop the in-memory key + plaintext index. Ciphertext at rest is unaffected.

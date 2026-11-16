@@ -25,3 +25,30 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         TARGETED_DEVICE_FAMILY: "1"      # iPhone only
         CODE_SIGNING_ALLOWED: "NO"       # local prototype: no signing required to build
+
+  eEntryAITests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: eEntryAITests
+    dependencies:
+      - target: eEntryAI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.eEntryAI.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/eEntryAI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)eEntryAI"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        CODE_SIGNING_ALLOWED: "NO"
+
+schemes:
+  eEntryAI:
+    build:
+      targets:
+        eEntryAI: all
+        eEntryAITests: [test]
+    test:
+      targets:
+        - eEntryAITests

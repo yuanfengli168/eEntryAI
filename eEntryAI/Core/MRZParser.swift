@@ -30,15 +30,24 @@ struct MRZParser {
                 }.filter { "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<".contains($0) })
             }
 
-        // TD3 = exactly two lines of 44 chars. Tolerate OCR noise: pick the two
-        // longest lines that look MRZ-like (length 40–48, high fill of A-Z0-9<).
-        let candidates = lines.filter { (40...48).contains($0.count) }
+        // TD3 = two lines of 44 chars. Tolerate OCR noise: MRZ-like lines are
+        // ≥28 chars, mostly A-Z/0-9/<, and start with P< or contain many '<'.
+        // (Real-world OCR frequently truncates the '<' padding.)
+        let candidates = lines.filter { line in
+            line.count >= 28 && looksMRZLike(line)
+        }
         guard candidates.count >= 2,
               let line1 = candidates.first,
               let line2 = candidates.dropFirst().first else {
             return .failure(reason: "No MRZ lines found in text")
         }
         return parseTD3(line1: line1, line2: line2)
+    }
+
+    private static func looksMRZLike(_ line: String) -> Bool {
+        let fillers = line.filter { $0 == "<" }.count
+        let valid = line.filter { "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<".contains($0) }.count
+        return fillers >= 3 || Double(valid) / Double(max(line.count, 1)) > 0.9
     }
 
     /// Strict entry: exactly two 44-char lines.
@@ -71,27 +80,34 @@ struct MRZParser {
         //  43     check digit for personal number
         //  44     composite check digit
         let passportNumber = parseField(l2, at: 0, len: 9)
-        let passportCheck = Int(String(l2[l2.index(l2.startIndex, offsetBy: 9)])) ?? -1
+        let passportCheck = digitAt(l2, 9) ?? -1
         let nationality = parseField(l2, at: 10, len: 3)
         let dobRaw = parseField(l2, at: 13, len: 6)
-        let dobCheck = Int(String(l2[l2.index(l2.startIndex, offsetBy: 19)])) ?? -1
+        let dobCheck = digitAt(l2, 19) ?? -1
         let sexChar = String(l2[l2.index(l2.startIndex, offsetBy: 20)])
         let expiryRaw = parseField(l2, at: 21, len: 6)
-        let expiryCheck = Int(String(l2[l2.index(l2.startIndex, offsetBy: 27)])) ?? -1
-        let compositeCheck = Int(String(l2[l2.index(l2.startIndex, offsetBy: 43)])) ?? -1
+        let expiryCheck = digitAt(l2, 27) ?? -1
 
         // Checksums — per spec, computed over the RAW field text (with padding '<').
         var warnings: [String] = []
         let passportRaw = String(l2.prefix(9))                  // raw 9-char field
         let personalRaw = String(l2[l2.index(l2.startIndex, offsetBy: 28)..<l2.index(l2.startIndex, offsetBy: 42)])   // 14 chars
-        let personalCheck = Int(String(l2[l2.index(l2.startIndex, offsetBy: 42)])) ?? -1
+        let personalCheck = digitAt(l2, 42)
         let passportValid = checkDigit(passportRaw) == passportCheck
         let dobValid = checkDigit(dobRaw) == dobCheck
         let expiryValid = checkDigit(expiryRaw) == expiryCheck
         // Composite check digit input: pn+check, dob+check, expiry+check, personal+check
         let compositeInput = passportRaw + String(passportCheck) + dobRaw + String(dobCheck)
-            + expiryRaw + String(expiryCheck) + personalRaw + String(personalCheck)
-        let compositeValid = checkDigit(compositeInput) == compositeCheck
+            + expiryRaw + String(expiryCheck) + personalRaw + String(personalCheck ?? 0)
+        // Composite is a WARNING-grade check: real OCR frequently truncates the
+        // trailing personal/composite digits, and padding makes them unverifiable.
+        // The passport-number check digit (position 9, mid-line) is the hard gate.
+        let compositeValid: Bool
+        if let compositeCheck = digitAt(l2, 43) {
+            compositeValid = checkDigit(compositeInput) == compositeCheck
+        } else {
+            compositeValid = false   // truncated — warn, don't fail
+        }
 
         guard passportValid else { return .failure(reason: "Passport number check digit failed") }
 
@@ -102,7 +118,11 @@ struct MRZParser {
         }
         if !dobValid { warnings.append("Date of birth check digit failed") }
         if !expiryValid { warnings.append("Expiry check digit failed") }
-        if !compositeValid { warnings.append("Composite check digit failed") }
+        if digitAt(l2, 43) == nil {
+            warnings.append("Composite check digit truncated (OCR padding) — not verified")
+        } else if !compositeValid {
+            warnings.append("Composite check digit failed")
+        }
 
         let fullName = (givenNames + " " + surname).trimmingCharacters(in: .whitespaces)
         let sex: String
@@ -125,6 +145,13 @@ struct MRZParser {
     }
 
     // MARK: Helpers
+
+    /// Digit at a 0-based index; nil if the char is '<' (padding) or non-digit.
+    private static func digitAt(_ line: String, _ idx: Int) -> Int? {
+        guard idx < line.count else { return nil }
+        let ch = line[line.index(line.startIndex, offsetBy: idx)]
+        return ch.wholeNumberValue.map { min($0, 9) }   // MRZ check digits are 0-9
+    }
 
     private static func parseField(_ line: String, at: Int, len: Int) -> String {
         let start = line.index(line.startIndex, offsetBy: at)

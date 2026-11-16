@@ -13,10 +13,12 @@
 		1C7B7BC15DB11B9248D54E2A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50EB6A9FDFB064390792135 /* HomeView.swift */; };
 		4793103C71EFB4ABF336CFC4 /* SGWebViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2EFE4B09F088A373B81E03 /* SGWebViewScreen.swift */; };
 		7A5E4A0C7C417B8F8D743875 /* VaultModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64598715E783FE3ADF825379 /* VaultModels.swift */; };
+		7DBC027518A186F7962E5F12 /* OCRPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04AFE0655EFAEF3ED734E40 /* OCRPipelineTests.swift */; };
 		8956E5D3365BA1573304C8EF /* MRZParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB693E19E57B6DB1BE11C59 /* MRZParserTests.swift */; };
 		8F282EC36DE22144FC6CE1EB /* MRZParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366A9B80725E9BD8A626663F /* MRZParser.swift */; };
 		A41CD551D832F99AD4F96E43 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E07470109A1E400AC7A84E /* Storage.swift */; };
 		AAE8115EB246889DC77124D8 /* AdapterPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D0FF8B530734726CAE1288 /* AdapterPack.swift */; };
+		BF45DFFA62E51826E829A14F /* OCRPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD88938D2F8DFE7B07A3166 /* OCRPipeline.swift */; };
 		D40C7EE8DF0FF4AE724E84F4 /* packs in Resources */ = {isa = PBXBuildFile; fileRef = 3B6982BC7F75053DB660DE4F /* packs */; };
 		E30DD5A997B7B1D16990753C /* PreFlightCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A2BF1539E1FD9A00B8152A /* PreFlightCheckView.swift */; };
 		E53F42E15FBBEF9882528872 /* eEntryAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4657387FC4440F390D8184CE /* eEntryAIApp.swift */; };
@@ -42,6 +44,8 @@
 		64598715E783FE3ADF825379 /* VaultModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultModels.swift; sourceTree = "<group>"; };
 		73E07470109A1E400AC7A84E /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		98B96AD7D54DA8FDDAE65D58 /* eEntryAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = eEntryAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9DD88938D2F8DFE7B07A3166 /* OCRPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRPipeline.swift; sourceTree = "<group>"; };
+		A04AFE0655EFAEF3ED734E40 /* OCRPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRPipelineTests.swift; sourceTree = "<group>"; };
 		A7D0FF8B530734726CAE1288 /* AdapterPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdapterPack.swift; sourceTree = "<group>"; };
 		AAC19DE0A8F631EC0B042004 /* eEntryAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = eEntryAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B50EB6A9FDFB064390792135 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -66,6 +70,7 @@
 			children = (
 				CC7F3D80CA44BAED6C31811F /* Models.swift */,
 				366A9B80725E9BD8A626663F /* MRZParser.swift */,
+				9DD88938D2F8DFE7B07A3166 /* OCRPipeline.swift */,
 				73E07470109A1E400AC7A84E /* Storage.swift */,
 				64598715E783FE3ADF825379 /* VaultModels.swift */,
 				33607B75C65425241604722E /* VaultStore.swift */,
@@ -124,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				EAB693E19E57B6DB1BE11C59 /* MRZParserTests.swift */,
+				A04AFE0655EFAEF3ED734E40 /* OCRPipelineTests.swift */,
 			);
 			path = eEntryAITests;
 			sourceTree = "<group>";
@@ -219,6 +225,7 @@
 				1C7B7BC15DB11B9248D54E2A /* HomeView.swift in Sources */,
 				8F282EC36DE22144FC6CE1EB /* MRZParser.swift in Sources */,
 				04C702641559AF65FA94E136 /* Models.swift in Sources */,
+				BF45DFFA62E51826E829A14F /* OCRPipeline.swift in Sources */,
 				E30DD5A997B7B1D16990753C /* PreFlightCheckView.swift in Sources */,
 				4793103C71EFB4ABF336CFC4 /* SGWebViewScreen.swift in Sources */,
 				A41CD551D832F99AD4F96E43 /* Storage.swift in Sources */,
@@ -233,6 +240,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8956E5D3365BA1573304C8EF /* MRZParserTests.swift in Sources */,
+				7DBC027518A186F7962E5F12 /* OCRPipelineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

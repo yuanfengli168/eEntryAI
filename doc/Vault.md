@@ -42,6 +42,25 @@ Rules:
 | Upload from Photos | PhotosPicker → same OCR pipeline | existing scans, desk workflow |
 | Manual typing | straight into fields, no OCR | fallback; always one tap away (Revolut pattern: never block on OCR) |
 
+### OCR reality (learned from a real passport photo, 2026-11-16)
+
+Vision reads the **printed (visual-zone) fields well** but MRZ OCR-B glyphs poorly
+(fillers → bullets, line 2 often lost to glare/angle). Consequences, all shipped:
+- MRZ parse yields a **line1Only partial** (country + names at fixed positions —
+  position-based, no regex needed) when line 2 is unreadable
+- **VisualZoneParser** extracts printed fields as fallback/extras: nationality word-list → ISO,
+  place of birth (label-anchored), dob/expiry dates (regex + context), name, sex,
+  format-guided passport-number repair. Reduced confidence → amber underline → user verifies
+- Everything the parser extracts is **field values only** — the image never leaves the process
+
+### Planned: local-LLM field matching (next iteration)
+
+The label→field wiring (exact string match on OCR-garbled labels) is the fragile
+layer. Plan: replace it with an **on-device LLM** that maps OCR output → our
+`IdentityFieldKey` schema (constrained JSON output). Privacy model unchanged:
+OCR text stays in-process; the model runs on-device. Candidate models and the
+decision live in §10.
+
 MRZ (ICAO 9303) yields: name, passport number, nationality, DOB, sex, expiry, issuing country.
 **NOT in MRZ:** place of birth, place of residence → P0 asks once, remembered.
 MRZ check digits validate the parse — a failed checksum = offer re-scan/typing, never save garbage.

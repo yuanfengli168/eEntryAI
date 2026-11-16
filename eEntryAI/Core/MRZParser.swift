@@ -23,31 +23,64 @@ struct MRZParser {
                 String(line.uppercased().map { ch in
                     // Common OCR confusions within MRZ charset
                     switch ch {
-                    case "«", "‹", "〈", "<": return "<"
+                    case "«", "‹", "〈", "<", "•", "·", ".", "。": return "<"
                     case "O": return "O"        // ambiguous with 0 — resolved by checksum
                     default: return ch
                     }
                 }.filter { "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<".contains($0) })
             }
 
-        // TD3 = two lines of 44 chars. Tolerate OCR noise: MRZ-like lines are
-        // ≥28 chars, mostly A-Z/0-9/<, and start with P< or contain many '<'.
-        // (Real-world OCR frequently truncates the '<' padding.)
+        // Anchor on the TD3 line 1 (must start with P< after glyph repair);
+        // line 2 is the NEXT MRZ-shaped line after it. Real OCR sometimes loses
+        // line 2 entirely (glare/angle) — that's a line1Only partial, not a failure.
         let candidates = lines.filter { line in
-            line.count >= 28 && looksMRZLike(line)
+            line.count >= 20 && looksMRZLike(line)
         }
-        guard candidates.count >= 2,
-              let line1 = candidates.first,
-              let line2 = candidates.dropFirst().first else {
+        let pIdx = candidates.firstIndex(where: { $0.hasPrefix("P<") })
+        let poIdx = candidates.firstIndex(where: { $0.hasPrefix("PO") || $0.hasPrefix("PL") })
+        guard let line1Idx = pIdx ?? poIdx else {
             return .failure(reason: "No MRZ lines found in text")
         }
-        return parseTD3(line1: line1, line2: line2)
+        let line1 = candidates[line1Idx]
+        if line1Idx + 1 < candidates.count {
+            return parseTD3(line1: line1, line2: candidates[line1Idx + 1])
+        }
+        // Partial: line 2 missing — extract what line 1 carries (country, name).
+        return parseTD3Line1Only(line1: line1)
     }
 
     private static func looksMRZLike(_ line: String) -> Bool {
         let fillers = line.filter { $0 == "<" }.count
         let valid = line.filter { "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<".contains($0) }.count
         return fillers >= 3 || Double(valid) / Double(max(line.count, 1)) > 0.9
+    }
+
+    /// Line-2-absent partial: issuing country + names only, low confidence.
+    /// All line-2 fields (passport number, DOB, sex, expiry) require manual entry.
+    static func parseTD3Line1Only(line1: String) -> MRZParseResult {
+        func norm44(_ s: String) -> String {
+            s.count >= 44 ? String(s.prefix(44)) : s + String(repeating: "<", count: 44 - s.count)
+        }
+        let l1 = norm44(line1)
+        // Repair common P<-prefix misreads (P OCHN → P<CHN... style handled by
+        // glyph pass already; a leading 'PO'/'PL' here still means P<).
+        let repaired = l1.hasPrefix("P<") ? l1 : ("P<" + l1.dropFirst(2))
+        guard repaired.hasPrefix("P<") else {
+            return .failure(reason: "Not a passport MRZ line 1")
+        }
+        let issuingCountry = parseField(repaired, at: 2, len: 3)
+        let (surname, given) = parseNames(String(repaired.dropFirst(5)))
+        let fullName = (given + " " + surname).trimmingCharacters(in: .whitespaces)
+        guard !fullName.isEmpty else {
+            return .failure(reason: "Name field unreadable")
+        }
+        return .success(
+            fields: [
+                ExtractedField(key: .fullName, value: fullName, confidence: 0.7),
+                ExtractedField(key: .issuingCountry, value: issuingCountry, confidence: 0.7),
+            ],
+            warnings: ["MRZ line 2 unreadable — passport number, DOB, sex, expiry need manual entry"]
+        )
     }
 
     /// Strict entry: exactly two 44-char lines.

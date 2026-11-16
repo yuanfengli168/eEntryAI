@@ -159,8 +159,7 @@ struct AddDocumentSheet: View {
         Section("Passport details") {
             ForEach(IdentityFieldKey.allCases) { key in
                 manualRow(key)
-            }
-        }
+            }        }
     }
 
     @ViewBuilder
@@ -198,6 +197,7 @@ struct AddDocumentSheet: View {
         case .sex: return "Sex (MALE/FEMALE/OTHERS)"
         case .expiryDate: return "Expiry (YYYY-MM-DD)"
         case .issuingCountry: return "Issuing country (ISO 3-letter)"
+        case .placeOfBirth: return "Place of birth"
         }
     }
 
@@ -210,6 +210,7 @@ struct AddDocumentSheet: View {
         case .sex: return "FEMALE"
         case .expiryDate: return "2025-08-18"
         case .issuingCountry: return "NLD"
+        case .placeOfBirth: return "BEIJING"
         }
     }
 
@@ -267,6 +268,7 @@ struct ExtractedRow: View {
         case .sex: return "Sex"
         case .expiryDate: return "Expiry"
         case .issuingCountry: return "Issuing country"
+        case .placeOfBirth: return "Place of birth"
         }
     }
 }

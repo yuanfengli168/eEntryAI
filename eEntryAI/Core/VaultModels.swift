@@ -69,8 +69,22 @@ struct VaultDocument: Codable, Identifiable, Equatable {
 
 enum IdentityFieldKey: String, Codable, CaseIterable, Identifiable {
     case fullName, passportNumber, nationality, dateOfBirth, sex
-    case expiryDate, issuingCountry
+    case expiryDate, issuingCountry, placeOfBirth
     var id: String { rawValue }
+
+    /// Human label for the card back and forms.
+    var displayLabel: String {
+        switch self {
+        case .fullName: return "Full name"
+        case .passportNumber: return "Passport No."
+        case .nationality: return "Nationality"
+        case .dateOfBirth: return "Date of birth"
+        case .sex: return "Sex"
+        case .expiryDate: return "Expiry"
+        case .issuingCountry: return "Issuing country"
+        case .placeOfBirth: return "Place of birth"
+        }
+    }
 }
 
 struct ExtractedField: Codable, Equatable, Identifiable {

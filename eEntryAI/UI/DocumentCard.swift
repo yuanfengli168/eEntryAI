@@ -90,7 +90,7 @@ struct DocumentCard: View {
         VStack(alignment: .leading, spacing: 6) {
             ForEach(document.extracted) { field in
                 HStack(alignment: .firstTextBaseline) {
-                    Text(field.key.rawValue.replacingOccurrences(of: "passportNumber", with: "Passport No."))
+                    Text(field.key.displayLabel)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 120, alignment: .leading)

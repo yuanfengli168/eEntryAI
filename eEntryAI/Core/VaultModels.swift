@@ -67,18 +67,20 @@ struct VaultDocument: Codable, Identifiable, Equatable {
 
 // MARK: Extracted field
 
-enum IdentityFieldKey: String, Codable, CaseIterable {
+enum IdentityFieldKey: String, Codable, CaseIterable, Identifiable {
     case fullName, passportNumber, nationality, dateOfBirth, sex
     case expiryDate, issuingCountry
+    var id: String { rawValue }
 }
 
-struct ExtractedField: Codable, Equatable {
+struct ExtractedField: Codable, Equatable, Identifiable {
+    var id: String { key.rawValue }
     let key: IdentityFieldKey
     var value: String
     /// 1.0 for manual entry; OCR confidences come from the MRZ parser.
     var confidence: Double
 
-    static let manual: Double = 1.0
+    static let manualConfidence: Double = 1.0
     static let lowConfidenceThreshold: Double = 0.8
 
     var isLowConfidence: Bool { confidence < Self.lowConfidenceThreshold }

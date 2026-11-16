@@ -105,6 +105,7 @@ struct HomeView: View {
         NavigationStack {
             List {
                 Section {
+                    NavigationLink("Document Vault") { VaultView() }
                     if model.profile == nil {
                         NavigationLink("Create your profile") { ProfileEntryView(model: model) }
                     } else {
@@ -135,16 +136,23 @@ struct HomeView: View {
             .sheet(isPresented: $showHistory) {
                 HistoryView(history: model.history)
             }
+            .sheet(isPresented: $showVaultDemo) {
+                NavigationStack { VaultView() }
+            }
             .onAppear {
                 // Test-only: automated checks.
                 if ProcessInfo.processInfo.arguments.contains("-uitest-preflight") {
                     startPreflight(.sg)   // render pre-flight sheet for visual check
                 } else if ProcessInfo.processInfo.arguments.contains("-uitest-autoopen") {
                     startPreflight(.sg)   // seeded run: startPreflight itself skips the sheet
+                } else if ProcessInfo.processInfo.arguments.contains("-uitest-vaultdemo") {
+                    showVaultDemo = true
                 }
             }
         }
     }
+
+    @State private var showVaultDemo = false
 
     /// P0 gate: diff pack requirements vs saved data BEFORE opening the portal.
     private func startPreflight(_ country: SupportedCountry) {

@@ -76,6 +76,34 @@ final class VaultStore: ObservableObject {
     init() {
         hasStoredKey = Self.keyExists()
         observeBackground()
+
+        // Test-only: seeded demo content for UI verification runs (simulator).
+        if ProcessInfo.processInfo.arguments.contains("-uitest-vaultdemo") {
+            Task { @MainActor in
+                do {
+                    try await unlock()           // simulator auto-approves biometrics
+                    if index.persons.isEmpty {
+                        try addPerson(name: "Jacky Li", isSelf: true)
+                        try addPerson(name: "Family Member")
+                        guard let selfPerson = index.persons.first(where: { $0.isSelf }) else { return }
+                        // Synthetic MRZ fixture — no real personal data.
+                        var doc = VaultDocument(personID: selfPerson.id, source: .manual)
+                        doc.extracted = [
+                            ExtractedField(key: .fullName, value: "JACKY LI", confidence: 1.0),
+                            ExtractedField(key: .passportNumber, value: "HA672249", confidence: 1.0),
+                            ExtractedField(key: .nationality, value: "CHN", confidence: 1.0),
+                            ExtractedField(key: .dateOfBirth, value: "1990-06-01", confidence: 1.0),
+                            ExtractedField(key: .sex, value: "MALE", confidence: 1.0),
+                            ExtractedField(key: .expiryDate, value: "2027-08-18", confidence: 1.0),
+                            ExtractedField(key: .issuingCountry, value: "CHN", confidence: 1.0),
+                        ]
+                        try addDocument(doc)
+                    }
+                } catch {
+                    // Demo seeding is best-effort; the UI still works without it.
+                }
+            }
+        }
     }
 
     /// Background → lock immediately (security default, not configurable).

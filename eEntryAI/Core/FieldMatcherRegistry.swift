@@ -23,6 +23,16 @@ enum MatcherAvailability: Equatable {
     case unavailable(reason: String)
 }
 
+enum MatcherError: Error, LocalizedError {
+    case engineNotReady(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .engineNotReady(let id): return "Matcher '\(id)' is not ready (download or availability pending)"
+        }
+    }
+}
+
 // MARK: Registry entry (pure config — no imports of engines)
 
 struct MatcherModelInfo: Identifiable, Equatable {

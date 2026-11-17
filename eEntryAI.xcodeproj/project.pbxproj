@@ -14,6 +14,7 @@
 		1C7B7BC15DB11B9248D54E2A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50EB6A9FDFB064390792135 /* HomeView.swift */; };
 		4567F5E855CCEB03E4B0DAE0 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = FDA740A7E40A4D129A5C4A82 /* MLXLLM */; };
 		4793103C71EFB4ABF336CFC4 /* SGWebViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2EFE4B09F088A373B81E03 /* SGWebViewScreen.swift */; };
+		4FC25D1A4BA707FB2E99549C /* MatcherEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1F1F43EC722D924FF3B6F7 /* MatcherEngineTests.swift */; };
 		5C21FABA035EAF545DB0CC70 /* VisualZoneParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D5F8D9DE8F21EF074BA7B2 /* VisualZoneParser.swift */; };
 		5D3C22F711308D90B19AC46F /* MatcherSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50B4AF6E1E33AA18A0884B0 /* MatcherSettingsView.swift */; };
 		74933F3D555A91AB05724820 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B274F58A64F9F3BA1325E551 /* VaultView.swift */; };
@@ -64,6 +65,7 @@
 		AAC19DE0A8F631EC0B042004 /* eEntryAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = eEntryAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B274F58A64F9F3BA1325E551 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		B50EB6A9FDFB064390792135 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		BC1F1F43EC722D924FF3B6F7 /* MatcherEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatcherEngineTests.swift; sourceTree = "<group>"; };
 		CB516B6192772D12777A8833 /* mlx-swift-examples */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mlx-swift-examples"; path = "vendor/mlx-swift-examples"; sourceTree = SOURCE_ROOT; };
 		CC7F3D80CA44BAED6C31811F /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		D50B4AF6E1E33AA18A0884B0 /* MatcherSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatcherSettingsView.swift; sourceTree = "<group>"; };
@@ -181,6 +183,7 @@
 		FEB2A90AC9FF3AEC5EA4D8A7 /* eEntryAITests */ = {
 			isa = PBXGroup;
 			children = (
+				BC1F1F43EC722D924FF3B6F7 /* MatcherEngineTests.swift */,
 				EAB693E19E57B6DB1BE11C59 /* MRZParserTests.swift */,
 				A04AFE0655EFAEF3ED734E40 /* OCRPipelineTests.swift */,
 				F14956FB71BE1F5F028F72BB /* VisualZoneParserTests.swift */,
@@ -308,6 +311,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8956E5D3365BA1573304C8EF /* MRZParserTests.swift in Sources */,
+				4FC25D1A4BA707FB2E99549C /* MatcherEngineTests.swift in Sources */,
 				7DBC027518A186F7962E5F12 /* OCRPipelineTests.swift in Sources */,
 				8702059FC2F55ED907CE486A /* VisualZoneParserTests.swift in Sources */,
 			);

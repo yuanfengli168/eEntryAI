@@ -123,6 +123,10 @@ struct HomeView: View {
                 Section {
                     Button("History") { showHistory = true }
                 } header: { Text("3. Past submissions") }
+
+                Section {
+                    NavigationLink("Field Matching (AI models)") { MatcherSettingsView() }
+                } header: { Text("4. Settings") }
             }
             .navigationTitle("eEntryAI")
             .sheet(item: $preflight) { task in

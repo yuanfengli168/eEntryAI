@@ -12,6 +12,7 @@
 		110D2AF143C86E6FA6645D24 /* MLXMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD935A499B5F3379D6E3B81A /* MLXMatcher.swift */; };
 		1A5A562B9DD66C0F0358E44B /* AutomationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07266B0B731FF798C5CE945 /* AutomationEngine.swift */; };
 		1C7B7BC15DB11B9248D54E2A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50EB6A9FDFB064390792135 /* HomeView.swift */; };
+		4567F5E855CCEB03E4B0DAE0 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = FDA740A7E40A4D129A5C4A82 /* MLXLLM */; };
 		4793103C71EFB4ABF336CFC4 /* SGWebViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2EFE4B09F088A373B81E03 /* SGWebViewScreen.swift */; };
 		5C21FABA035EAF545DB0CC70 /* VisualZoneParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D5F8D9DE8F21EF074BA7B2 /* VisualZoneParser.swift */; };
 		5D3C22F711308D90B19AC46F /* MatcherSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50B4AF6E1E33AA18A0884B0 /* MatcherSettingsView.swift */; };
@@ -63,6 +64,7 @@
 		AAC19DE0A8F631EC0B042004 /* eEntryAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = eEntryAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B274F58A64F9F3BA1325E551 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		B50EB6A9FDFB064390792135 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		CB516B6192772D12777A8833 /* mlx-swift-examples */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mlx-swift-examples"; path = "vendor/mlx-swift-examples"; sourceTree = SOURCE_ROOT; };
 		CC7F3D80CA44BAED6C31811F /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		D50B4AF6E1E33AA18A0884B0 /* MatcherSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatcherSettingsView.swift; sourceTree = "<group>"; };
 		DD935A499B5F3379D6E3B81A /* MLXMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXMatcher.swift; sourceTree = "<group>"; };
@@ -74,6 +76,17 @@
 		F14956FB71BE1F5F028F72BB /* VisualZoneParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualZoneParserTests.swift; sourceTree = "<group>"; };
 		F3EE56BA0E7BDC57B0B5AE32 /* AppleFMMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleFMMatcher.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2347D319046EDD04C3CA91C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4567F5E855CCEB03E4B0DAE0 /* MLXLLM in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		29711ECE058AB3BE8ED93146 /* UI */ = {
@@ -152,8 +165,17 @@
 				3B6982BC7F75053DB660DE4F /* packs */,
 				CA84EBE5DE62C0089C3C010B /* eEntryAI */,
 				FEB2A90AC9FF3AEC5EA4D8A7 /* eEntryAITests */,
+				F7307109A36C56BD253FCBB9 /* Packages */,
 				381802A97FA3A127DD8FD0C8 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		F7307109A36C56BD253FCBB9 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				CB516B6192772D12777A8833 /* mlx-swift-examples */,
+			);
+			name = Packages;
 			sourceTree = "<group>";
 		};
 		FEB2A90AC9FF3AEC5EA4D8A7 /* eEntryAITests */ = {
@@ -175,6 +197,7 @@
 			buildPhases = (
 				7FDDED15757F7110E153BB45 /* Sources */,
 				AF083384325C347395884519 /* Resources */,
+				2347D319046EDD04C3CA91C7 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -182,6 +205,7 @@
 			);
 			name = eEntryAI;
 			packageProductDependencies = (
+				FDA740A7E40A4D129A5C4A82 /* MLXLLM */,
 			);
 			productName = eEntryAI;
 			productReference = AAC19DE0A8F631EC0B042004 /* eEntryAI.app */;
@@ -225,6 +249,9 @@
 			);
 			mainGroup = F3C9A55485289916575D79B5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0FCD0497A3E883F1AAA78922 /* XCLocalSwiftPackageReference "vendor/mlx-swift-examples" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 381802A97FA3A127DD8FD0C8 /* Products */;
 			projectDirPath = "";
@@ -305,6 +332,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -326,6 +354,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -537,6 +566,20 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		0FCD0497A3E883F1AAA78922 /* XCLocalSwiftPackageReference "vendor/mlx-swift-examples" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "vendor/mlx-swift-examples";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FDA740A7E40A4D129A5C4A82 /* MLXLLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MLXLLM;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D0B53FC085E1E4B8F971DE4E /* Project object */;
 }

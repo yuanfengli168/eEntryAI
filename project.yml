@@ -5,10 +5,16 @@ options:
     iOS: "26.0"
   createIntermediateGroups: true
 
+packages:
+  MLXLLM:
+    path: vendor/mlx-swift-examples
+
 targets:
   eEntryAI:
     type: application
     platform: iOS
+    dependencies:
+      - package: MLXLLM
     sources:
       - path: eEntryAI
       - path: packs
@@ -49,6 +55,8 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
         CODE_SIGNING_ALLOWED: "YES"
         CODE_SIGN_IDENTITY: "-"
+        # MLX package products require iOS 17+; match the app target (26.0).
+        IPHONEOS_DEPLOYMENT_TARGET: "26.0"
 
 schemes:
   eEntryAI:
